@@ -1,0 +1,409 @@
+# Nome da grade alvo (arquivo NetCDF)
+target_grid       Grade_SSE.nc
+
+# Acumulacao em horas do ensemble (ver proximo parametro)
+ensemble_acc  1 
+
+# Tolerancia maxima em horas de interpolacao linear,
+# basicamente qual e o intervalo onde se aceita interpolar para obter
+# a acumulacao de acordo com ensemble_acumulacao
+# Ex: GFS antigo tem arquivos de 3 em 3 horas, como tolerancia_acumulacao = 3 entao
+# pode-se interpolar o dois arquivos do GFS (antigo). Se tolerancia_acumulacao=1 e ensemble_acumulacao=1
+# entao nao teria como interpolar o GFS antigo de forma a obter previsoes horarias
+interp_tol   3
+
+# Total de horas que entrarao no ensemble 
+hours_ensemble    181
+
+#Lista de Modelos que serao utilizados na geracao do ensemble
+models  GFS GEP01 GEP02 GEP03 GEP04 GEP06 GEP07 GEP08 GEP09 GEP10 GEP11 GEP12 GEP13 GEP14 GEP15 GEP16 GEP17 GEP18 GEP19 GEP20 SSEOP01 SSEOP02 BR BRAMS BAM
+
+# Estatisticas que serao salvas
+statistics   minimum quartile_lower median quartile_upper maximum mean
+
+#Nomes das statistics no arquivo netcdf
+# statistic                    variavel               percentile     long_name
+statistic_median               Median                 0.5            Median
+statistic_quartile_lower       Quartile_Lower         0.25           Lower Quartile
+statistic_quartile_upper       Quartile_Upper         0.75           Upper Quartile
+statistic_maximum              Maximum                1.0            Maximum
+statistic_minimum              Minimum                0.0            Minimum
+statistic_mean                 Mean                   --             Mean
+statistic_linear_combination   Linear_Combination     --             Linear Combination
+
+# Ensemble file name (default), name can be provided by the user
+ensemble_file               /dados/produtos/gera_ensemble_v2/tmp/ensemble_%Y%m%d%H.nc
+
+# Info about the ensemble logs
+ensemble_log_name             ensemble_%Y%m%d%H.log
+ensemble_log_directory        /dados/produtos/gera_ensemble_v2/logs/        
+ensemble_report_directory     /dados/produtos/gera_ensemble_v2/logs2/
+ensemble_report_name          ensemble_report_%d_%m_%Y_%H_log.xls
+# The order that the models will apear in the xls file
+# if no order is defined then the order used will be the order of the
+# variable model (above)
+# models_order  SSEOP01 GFS BR BRAMS BAM GEP01 ... 
+models_order    --
+
+
+# Info about the interpolate files
+interpolated_file             interpolated_data_%Y%m%d%H.nc
+interpolated_directory        /dados/produtos/gera_ensemble_v2/tmp/
+interpolated_lat_dim_name     Nlat
+interpolated_lon_dim_name     Nlon
+interpolated_times_dim_name   times
+interpolated_lat_var_name     latitudes
+interpolated_lon_var_name     longitudes
+interpolated_times_var_name   times
+interpolated_lat_var_units    degrees_north
+interpolated_lon_var_units    degrees_east 
+interpolated_times_var_units  seconds since 1970-01-01 00:00 UTC
+interpolated_models_var_name  Models
+
+# Number of interpolated files that will be loaded to avoid interpolation
+interpolated_files   3
+
+# Runs of the the interpolated files that will be loaded
+# Example: interpolated_files = 3 and interpolated_runs = 00 will load the 
+# first 3 found interpolated files from the 00 hour run.
+interpolated_runs   00 12
+
+# Oldest in hours (relative to the run), interpolated file that will be loaded
+# 2 days = 48 hours
+interpolated_oldest  36 
+
+# schemes de acumulacao
+# Os modelos acumulam chuva de forma diferente e portanto precisam ser
+# trados de forma diferente
+# scheme WRF
+scheme_WRF_variables             RAINC RAINNC
+scheme_GFS_variables             Total Precipitation
+scheme_GEFS_variables            Total Precipitation
+scheme_CPTEC_variables           Total precipitation
+scheme_CPTEC_interval_ETA        3
+scheme_CPTEC_interval_BRAMS      6
+scheme_CPTEC_interval_BAM        6
+scheme_CPTEC_grib_message_ETA    10
+scheme_CPTEC_grib_message_BRAMS  3
+scheme_CPTEC_grib_message_BAM    31
+scheme_CPTEC_factor_ETA          1000
+
+# Processos em paralelo
+models_in_parallel           16
+interpolations_in_parallel   16
+
+
+# directorys do projeto
+directory_metadata         /dados/produtos/gera_ensemble_v2/metadata/
+
+# Especificacoes dos modelos
+#file_name_modelo                => Template do nome do arquivo (Ex: WRF Lin => Lin_wrfout_d01_%Y-%m-%d_%H.nc, GFS recortado => recorte_gfs.t%Hz.pgrb2.0p25.f)
+#directory_modelo                   => directory do modelo
+#days_modelo                        => Numero de dias de que serao consultados (EM REUNIAO FICOU DECIDIDO 3 DIAS)
+#runs_modelo                     => Rodadas a serem consideradas 00 => apenas a rodada das 00 sera considerada, 00 12 => rodadas das 00 e 12 irao entrar no ensemble
+#format_file_modelo             => Formato do arquivo do modelo (por conveniencia), Ex: WRF => NetCDF, GFS => grib, etc...
+#acc_scheme_modelo       => Modelos acumulam de forma diferente e portanto deve-se tratar este problema
+
+
+
+# Modelo SSEOP01
+file_name_SSEOP01                 SSE9km.op01_wrfout_%Y-%m-%d_%H.nc
+directory_SSEOP01                 /simepar/modelos/simepar/wrf/SSE/9km/raw/%Y/%m/%d/%H/
+days_SSEOP01                      3
+runs_SSEOP01                      00 12
+format_file_SSEOP01               NetCDF
+acc_scheme_SSEOP01                WRF
+model_SSEOP01                     WRF
+weight_SSEOP01                      1.0
+automatic_weight_SSEOP01          No
+
+# Modelo SSEOP02
+file_name_SSEOP02                 SSE9km.op02_wrfout_%Y-%m-%d_%H.nc
+directory_SSEOP02                    /simepar/modelos/simepar/wrf/SSE/9km/raw/%Y/%m/%d/%H/
+days_SSEOP02                         3
+runs_SSEOP02                      00 12
+format_file_SSEOP02              NetCDF
+acc_scheme_SSEOP02        WRF
+model_SSEOP02                       WRF
+weight_SSEOP02                         1.0
+automatic_weight_SSEOP02             Yes
+
+# Modelo BR
+file_name_BR                      BR9km.op07_wrfout_%Y-%m-%d_%H.nc
+directory_BR                         /simepar/modelos/simepar/wrf/BR/9km/raw/%Y/%m/%d/%H/
+days_BR                              3
+runs_BR                           00 12
+format_file_BR                   NetCDF
+acc_scheme_BR             WRF
+model_BR                            WRF
+weight_BR                              1.0
+automatic_weight_BR                  Yes
+
+# Modelo ETA
+file_name_ETA                     recorte_eta_15km_%Y%m%d%H 
+directory_ETA                        /simepar/modelos/cptec/eta/ams1/15km/pos/%Y/%m/%d/%H/
+days_ETA                             3
+runs_ETA                          00 12
+format_file_ETA                  grib
+acc_scheme_ETA            CPTEC 
+model_ETA                           ETA
+weight_ETA                             1.
+automatic_weight_ETA                 Yes
+
+# Modelo BRAMS
+file_name_BRAMS                   recorte_JULES_BRAMS05km_%Y%m%d%H
+directory_BRAMS                      /simepar/modelos/cptec/brams/ams2/05km/pos/%Y/%m/%d/%H/
+days_BRAMS                           3
+runs_BRAMS                        00 12
+format_file_BRAMS                grib
+acc_scheme_BRAMS          CPTEC
+model_BRAMS                         BRAMS
+weight_BRAMS                           1.
+automatic_weight_BRAMS               Yes
+
+# Modelo BAM
+file_name_BAM                     recorte_GPOSNMC%Y%m%d%H 
+directory_BAM                        /simepar/modelos/cptec/bam/latam/20km/pos/%Y/%m/%d/%H/
+days_BAM                             3
+runs_BAM                          00 12
+format_file_BAM                  grib
+acc_scheme_BAM            CPTEC
+model_BAM                           BAM
+weight_BAM                             1.
+automatic_weight_BAM                 Yes
+
+
+# Modelo GFS
+file_name_GFS                     recorte_gfs.t%Hz.pgrb2.0p25.f
+directory_GFS                     /simepar/modelos/ncep/gfs/latam/0p25/pos/%Y/%m/%d/%H/
+days_GFS                         3
+runs_GFS                         00 06 12 18
+format_file_GFS                  grib
+acc_scheme_GFS                   GFS
+model_GFS                        GFS
+weight_GFS                         1.0
+automatic_weight_GFS             Yes                                 
+
+# Modelo GEP01 (GEFS Membro 01)
+file_name_GEP01                  recorte_gep01.t%Hz.pgrb2a.0p50.f
+directory_GEP01                  /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP01                       3
+runs_GEP01                       00 06 12 18
+format_file_GEP01                grib
+acc_scheme_GEP01                 GEFS
+model_GEP01                      GEFS
+weight_GEP01                       1.0
+automatic_weight_GEP01           Yes
+
+# Modelo GEP02 (GEFS Membro 02)
+file_name_GEP02                  recorte_gep02.t%Hz.pgrb2a.0p50.f
+directory_GEP02                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP02                          3
+runs_GEP02                       00 06 12 18
+format_file_GEP02               grib
+acc_scheme_GEP02         GEFS
+model_GEP02                        GEFS
+weight_GEP02                          1.0
+automatic_weight_GEP02              Yes
+
+# Modelo GEP03 (GEFS Membro 03)
+file_name_GEP03                  recorte_gep03.t%Hz.pgrb2a.0p50.f
+directory_GEP03                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP03                          3
+runs_GEP03                       00 06 12 18
+format_file_GEP03               grib
+acc_scheme_GEP03         GEFS
+model_GEP03                        GEFS
+weight_GEP03                          1.0
+automatic_weight_GEP03              Yes
+
+# Modelo GEP04 (GEFS Membro 04)
+file_name_GEP04                  recorte_gep04.t%Hz.pgrb2a.0p50.f
+directory_GEP04                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP04                          3
+runs_GEP04                       00 06 12 18
+format_file_GEP04               grib
+acc_scheme_GEP04         GEFS
+model_GEP04                        GEFS
+weight_GEP04                          1.0
+automatic_weight_GEP04              Yes
+
+# Modelo GEP05 (GEFS Membro 05)
+file_name_GEP05                  recorte_gep05.t%Hz.pgrb2a.0p50.f
+directory_GEP05                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP05                          3
+runs_GEP05                       00 06 12 18
+format_file_GEP05               grib
+acc_scheme_GEP05         GEFS
+model_GEP05                        GEFS
+weight_GEP05                          1.0
+automatic_weight_GEP05              Yes
+
+# Modelo GEP06 (GEFS Membro 06)
+file_name_GEP06                  recorte_gep06.t%Hz.pgrb2a.0p50.f
+directory_GEP06                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP06                          3
+runs_GEP06                       00 06 12 18
+format_file_GEP06               grib
+acc_scheme_GEP06         GEFS
+model_GEP06                        GEFS
+weight_GEP06                          1.0
+automatic_weight_GEP06              Yes
+
+# Modelo GEP07 (GEFS Membro 07)
+file_name_GEP07                  recorte_gep07.t%Hz.pgrb2a.0p50.f
+directory_GEP07                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP07                          3
+runs_GEP07                       00 06 12 18
+format_file_GEP07               grib
+acc_scheme_GEP07         GEFS
+model_GEP07                        GEFS
+weight_GEP07                          1.0
+automatic_weight_GEP07              Yes
+
+# Modelo GEP08 (GEFS Membro 08)
+file_name_GEP08                  recorte_gep08.t%Hz.pgrb2a.0p50.f
+directory_GEP08                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP08                          3
+runs_GEP08                       00 06 12 18
+format_file_GEP08               grib
+acc_scheme_GEP08         GEFS
+model_GEP08                        GEFS
+weight_GEP08                          1.0
+automatic_weight_GEP08              Yes
+
+# Modelo GEP09 (GEFS Membro 09)
+file_name_GEP09                  recorte_gep09.t%Hz.pgrb2a.0p50.f
+directory_GEP09                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP09                          3
+runs_GEP09                       00 06 12 18
+format_file_GEP09               grib
+acc_scheme_GEP09         GEFS
+model_GEP09                        GEFS
+weight_GEP09                          1.0
+automatic_weight_GEP09              Yes
+
+# Modelo GEP10 (GEFS Membro 10)
+file_name_GEP10                  recorte_gep10.t%Hz.pgrb2a.0p50.f
+directory_GEP10                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP10                          3
+runs_GEP10                       00 06 12 18
+format_file_GEP10               grib
+acc_scheme_GEP10         GEFS
+model_GEP10                        GEFS
+weight_GEP10                          1.0
+automatic_weight_GEP10              Yes
+
+# Modelo GEP11 (GEFS Membro 11)
+file_name_GEP11                  recorte_gep11.t%Hz.pgrb2a.0p50.f
+directory_GEP11                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP11                          3
+runs_GEP11                       00 06 12 18
+format_file_GEP11               grib
+acc_scheme_GEP11         GEFS
+model_GEP11                        GEFS
+weight_GEP11                          1.0
+automatic_weight_GEP11              Yes
+
+# Modelo GEP12 (GEFS Membro 12)
+file_name_GEP12                  recorte_gep12.t%Hz.pgrb2a.0p50.f
+directory_GEP12                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP12                          3
+runs_GEP12                       00 06 12 18
+format_file_GEP12               grib
+acc_scheme_GEP12         GEFS
+model_GEP12                        GEFS
+weight_GEP12                          1.0
+automatic_weight_GEP12              Yes
+
+# Modelo GEP13 (GEFS Membro 13)
+file_name_GEP13                  recorte_gep13.t%Hz.pgrb2a.0p50.f
+directory_GEP13                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP13                          3
+runs_GEP13                       00 06 12 18
+format_file_GEP13               grib
+acc_scheme_GEP13         GEFS
+model_GEP13                        GEFS
+weight_GEP13                          1.0
+automatic_weight_GEP13              Yes
+
+# Modelo GEP14 (GEFS Membro 14)
+file_name_GEP14                  recorte_gep14.t%Hz.pgrb2a.0p50.f
+directory_GEP14                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP14                          3
+runs_GEP14                       00 06 12 18
+format_file_GEP14               grib
+acc_scheme_GEP14         GEFS
+model_GEP14                        GEFS
+weight_GEP14                          1.0
+automatic_weight_GEP14              Yes
+
+# Modelo GEP15 (GEFS Membro 15)
+file_name_GEP15                  recorte_gep15.t%Hz.pgrb2a.0p50.f
+directory_GEP15                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP15                          3
+runs_GEP15                       00 06 12 18
+format_file_GEP15               grib
+acc_scheme_GEP15         GEFS
+model_GEP15                        GEFS
+weight_GEP15                          1.0
+automatic_weight_GEP15              Yes
+
+
+# Modelo GEP16 (GEFS Membro 16)
+file_name_GEP16                  recorte_gep16.t%Hz.pgrb2a.0p50.f
+directory_GEP16                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP16                          3
+runs_GEP16                       00 06 12 18
+format_file_GEP16               grib
+acc_scheme_GEP16         GEFS
+model_GEP16                        GEFS
+weight_GEP16                          1.0
+automatic_weight_GEP16              Yes
+
+# Modelo GEP17 (GEFS Membro 17)
+file_name_GEP17                  recorte_gep17.t%Hz.pgrb2a.0p50.f
+directory_GEP17                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP17                          3
+runs_GEP17                       00 06 12 18
+format_file_GEP17               grib
+acc_scheme_GEP17         GEFS
+model_GEP17                        GEFS
+weight_GEP17                          1.0
+automatic_weight_GEP17              Yes
+
+
+# Modelo GEP18 (GEFS Membro 18)
+file_name_GEP18                  recorte_gep18.t%Hz.pgrb2a.0p50.f
+directory_GEP18                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP18                          3
+runs_GEP18                       00 06 12 18
+format_file_GEP18               grib
+acc_scheme_GEP18         GEFS
+model_GEP18                        GEFS
+weight_GEP18                          1.0
+automatic_weight_GEP18              Yes
+
+
+# Modelo GEP19 (GEFS Membro 19)
+file_name_GEP19                  recorte_gep19.t%Hz.pgrb2a.0p50.f
+directory_GEP19                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP19                          3
+runs_GEP19                       00 06 12 18
+format_file_GEP19               grib
+acc_scheme_GEP19         GEFS
+model_GEP19                        GEFS
+weight_GEP19                          1.0
+automatic_weight_GEP19              Yes
+
+
+# Modelo GEP20 (GEFS Membro 20)
+file_name_GEP20                  recorte_gep20.t%Hz.pgrb2a.0p50.f
+directory_GEP20                     /simepar/modelos/ncep/gefs/latam/0p50/pos/%Y/%m/%d/%H/
+days_GEP20                          3
+runs_GEP20                       00 06 12 18
+format_file_GEP20               grib
+acc_scheme_GEP20         GEFS
+model_GEP20                        GEFS
+weight_GEP20                          1.0
+automatic_weight_GEP20              Yes
